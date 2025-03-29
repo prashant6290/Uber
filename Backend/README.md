@@ -122,3 +122,69 @@ This endpoint authenticates an existing user. It accepts user credentials includ
   ```json
   { "message": "Error message" }
   ```
+
+## GET /users/profile
+
+### Description
+This endpoint retrieves the profile of the currently authenticated user. The request requires a valid token (set via a cookie or header).
+
+### Request Headers
+- Cookie: token=JWT token string  
+  -- or --
+- x-auth-token: JWT token string
+
+### Success Response
+- **Code:** 200 OK  
+- **Content:**
+```json
+{
+  "user": {
+    "_id": "user_id",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com"
+    // ...other user properties, excluding password...
+  }
+}
+```
+
+### Error Responses
+- **Unauthorized:**  
+  - **Code:** 401 Unauthorized  
+  - **Content:**
+  ```json
+  { "message": "Unauthorized" }
+  ```
+- **User Not Found:**  
+  - **Code:** 404 Not Found  
+  - **Content:**
+  ```json
+  { "message": "User not found" }
+  ```
+
+## GET /users/logout
+
+### Description
+This endpoint logs out the authenticated user by clearing the token cookie and blacklisting the token.
+
+### Request Headers
+- Cookie: token=JWT token string  
+  -- or --
+- x-auth-token: JWT token string
+
+### Success Response
+- **Code:** 200 OK  
+- **Content:**
+```json
+{ "message": "Logged out successfully" }
+```
+
+### Error Responses
+- **Server Error:**  
+  - **Code:** 500 Internal Server Error  
+  - **Content:**
+  ```json
+  { "message": "Error message" }
+  ```
