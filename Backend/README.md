@@ -188,3 +188,81 @@ This endpoint logs out the authenticated user by clearing the token cookie and b
   ```json
   { "message": "Error message" }
   ```
+
+## POST /captain/register
+
+### Description
+This endpoint registers a new captain. It accepts captain personal details along with vehicle information.
+
+### Request Body
+- `fullname`: Object  
+  - `firstname`: string (min 3 characters)  
+  - `lastname`: string (required)
+- `email`: string (valid email format)
+- `password`: string (min 6 characters)
+- `vehicle`: Object  
+  - `color`: string (min 3 characters)
+  - `plate`: string (min 3 characters)
+  - `capacity`: integer (min 1)
+  - `vehicleType`: string (one of "car", "motorcycle", "auto")
+
+**Example:**
+```json
+{
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Doe"
+  },
+  "email": "jane.doe@example.com",
+  "password": "securePass123",
+  "vehicle": {
+    "color": "Red",
+    "plate": "XYZ1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Success Response
+- **Code:** 201 Created  
+- **Content:**
+```json
+{
+  "captain": {
+    "_id": "captain_id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+    // ...other captain details...
+  }
+}
+```
+
+### Error Responses
+- **Validation Error:**  
+  - **Code:** 400 Bad Request  
+  - **Content:**
+  ```json
+  { "errors": [ { "msg": "Error message", "param": "field", "location": "body" } ] }
+  ```
+- **Missing Fields Error:**  
+  - **Code:** 400 Bad Request  
+  - **Content:**
+  ```json
+  { "message": "All fields are required" }
+  ```
+- **Server Error:**  
+  - **Code:** 500 Internal Server Error  
+  - **Content:**
+  ```json
+  { "message": "Error message" }
+  ```
