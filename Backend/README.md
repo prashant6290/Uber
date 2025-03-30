@@ -189,46 +189,33 @@ This endpoint logs out the authenticated user by clearing the token cookie and b
   { "message": "Error message" }
   ```
 
-## POST /captain/register
+## POST /captains/register
 
 ### Description
-This endpoint registers a new captain. It accepts captain personal details along with vehicle information.
+Registers a new captain. Accepts personal details and vehicle information.
 
 ### Request Body
-- `fullname`: Object  
-  - `firstname`: string (min 3 characters)  
-  - `lastname`: string (required)
-- `email`: string (valid email format)
-- `password`: string (min 6 characters)
-- `vehicle`: Object  
-  - `color`: string (min 3 characters)
-  - `plate`: string (min 3 characters)
-  - `capacity`: integer (min 1)
-  - `vehicleType`: string (one of "car", "motorcycle", "auto")
-
-**Example:**
 ```json
 {
   "fullname": {
-    "firstname": "Jane",
-    "lastname": "Doe"
+    "firstname": "Jane", // required, min 3 characters
+    "lastname": "Doe"    // required
   },
-  "email": "jane.doe@example.com",
-  "password": "securePass123",
+  "email": "jane.doe@example.com", // must be a valid email
+  "password": "securePass123",     // required, min 6 characters
   "vehicle": {
-    "color": "Red",
-    "plate": "XYZ1234",
-    "capacity": 4,
-    "vehicleType": "car"
+    "color": "Red",         // required, min 3 characters
+    "plate": "XYZ1234",     // required, min 3 characters
+    "capacity": 4,          // required, integer, minimum value 1
+    "vehicleType": "car"    // required, allowed values: 'car', 'motorcycle', 'auto'
   }
 }
 ```
 
 ### Success Response
-- **Code:** 201 Created  
-- **Content:**
 ```json
 {
+  "token": "JWT token string", // generated authentication token
   "captain": {
     "_id": "captain_id",
     "fullname": {
@@ -248,21 +235,114 @@ This endpoint registers a new captain. It accepts captain personal details along
 ```
 
 ### Error Responses
-- **Validation Error:**  
-  - **Code:** 400 Bad Request  
-  - **Content:**
-  ```json
-  { "errors": [ { "msg": "Error message", "param": "field", "location": "body" } ] }
-  ```
-- **Missing Fields Error:**  
-  - **Code:** 400 Bad Request  
-  - **Content:**
-  ```json
-  { "message": "All fields are required" }
-  ```
-- **Server Error:**  
-  - **Code:** 500 Internal Server Error  
-  - **Content:**
-  ```json
-  { "message": "Error message" }
-  ```
+- **Validation Error (400):**
+```json
+{
+  "errors": [ 
+    { "msg": "Error message", "param": "field", "location": "body" } // details of the validation error
+  ]
+}
+```
+- **Missing Fields (400):**
+```json
+{ "message": "All fields are required" }
+```
+- **Server Error (500):**
+```json
+{ "message": "Error message" }
+```
+
+## POST /captains/login
+
+### Description
+Authenticates a captain using email and password.
+
+### Request Body
+```json
+{
+  "email": "jane.doe@example.com", // must be a valid email
+  "password": "securePass123"        // required, min 6 characters
+}
+```
+
+### Success Response
+```json
+{
+  "token": "JWT token string", // generated authentication token
+  "captain": {
+    "_id": "captain_id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    // ...other captain details...
+  }
+}
+```
+
+### Error Responses
+- **Validation Error (400):**
+```json
+{
+  "errors": [ 
+    { "msg": "Error message", "param": "field", "location": "body" }
+  ]
+}
+```
+- **Invalid Credentials (401):**
+```json
+{ "message": "Invalid email or password" }
+```
+- **Server Error (500):**
+```json
+{ "message": "Error message" }
+```
+
+## GET /captains/profile
+
+### Description
+Retrieves the profile of the authenticated captain. Token must be provided via cookie or header.
+
+### Success Response
+```json
+{
+  "captain": {
+    "_id": "captain_id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+    // ...other captain fields, excluding sensitive data...
+  }
+}
+```
+
+### Error Response
+- **Unauthorized (401):**
+```json
+{ "message": "Unauthorized" }
+```
+
+## GET /captains/logout
+
+### Description
+Logs out the captain by clearing the token cookie and blacklisting the token.
+
+### Success Response
+```json
+{ "message": "Logged out successfully" }
+```
+
+### Error Response
+- **Server Error (500):**
+```json
+{ "message": "Error message" }
+```
