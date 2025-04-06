@@ -5,7 +5,7 @@ const blackListTokenModel = require('../models/blacklistToken.model');
 
 
 module.exports.registerUser = async (req, res) => {
-    try {  // Added missing `try {`
+    try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -14,11 +14,6 @@ module.exports.registerUser = async (req, res) => {
         console.log(req.body);
 
         const { fullname, email, password } = req.body;
-
-        const isUserAlready = await userModel.findOne({ email });
-        if (isUserAlready) {
-            return res.status(400).json({ message: "User already exists" });
-        }
 
         if (!fullname || !fullname.firstname || !fullname.lastname || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
@@ -30,20 +25,17 @@ module.exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        // Hash password (Ensure `hashPassword` is defined in `userModel`)
-        const hashedPassword = await userModel.hashPassword(password);
-
-        // Create user
+        // Create user (no need to manually hash password here, the schema will handle it)
         const user = await userService.createUser({
             fullname: {
                 firstname: fullname.firstname,
                 lastname: fullname.lastname
             },
             email,
-            password: hashedPassword
+            password // Pass plain password, bcrypt will hash it during save
         });
 
-        // Ensure `generateAuthToken` exists in the model
+        // Generate token
         const token = user.generateAuthToken ? user.generateAuthToken() : null;
 
         res.status(201).json({ token, user });
@@ -68,11 +60,7 @@ module.exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Ensure `comparePassword` is properly defined and used
-        if (typeof user.comparePassword !== 'function') {
-            return res.status(500).json({ message: 'Internal error: comparePassword method missing' });
-        }
-
+        // Compare hashed password
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
@@ -81,15 +69,13 @@ module.exports.loginUser = async (req, res) => {
 
         // Generate token
         const token = user.generateAuthToken ? user.generateAuthToken() : null;
-           
+        
         res.cookie('token', token);
-
         res.status(200).json({ token, user });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 
 module.exports.getUserProfile = async (req, res) => {
     try {

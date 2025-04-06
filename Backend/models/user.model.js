@@ -52,7 +52,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Static method to hash password manually
+// Static method to hash password manually (not used in register anymore)
 userSchema.statics.hashPassword = async function (password) {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
